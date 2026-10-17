@@ -7,7 +7,7 @@
 import { defineConfig } from "@lovable.dev/vite-tanstack-config";
 
 export default defineConfig({
-  nitro: { preset: "vercel" },
+  nitro: { preset: "node-server" },
   vite: { optimizeDeps: { include: ["sonner", "zod", "lucide-react"] } },
   tanstackStart: {
     // Redirect TanStack Start's bundled server entry to src/server.ts (our SSR error wrapper).
