@@ -14,9 +14,9 @@ bun run dev
 
 ## Déploiement sur Render
 
-Le Blueprint [`render.yaml`](./render.yaml) crée un service web Bun. Le build
-utilise Nitro avec le preset `node-server`; le serveur est lancé par `bun run
-start`.
+Le Blueprint [`render.yaml`](./render.yaml) crée un service web Node.js. Le
+build utilise Nitro avec le preset `node-server`; le serveur est lancé par
+`npm run start`.
 
 1. Poussez le projet vers un dépôt GitHub auquel vous avez accès. Ne poussez
    jamais le fichier `.env` ni aucun secret.

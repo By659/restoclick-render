@@ -1,9 +1,9 @@
 services:
   - type: web
     name: restoclik
-    runtime: bun
-    buildCommand: bun install --frozen-lockfile && bun run build
-    startCommand: bun run start
+    runtime: node
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
     healthCheckPath: /
     envVars:
       - key: SUPABASE_URL
