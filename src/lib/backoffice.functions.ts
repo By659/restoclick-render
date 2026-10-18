@@ -21,6 +21,17 @@ async function isPlatformAdmin(db: Awaited<ReturnType<typeof getAdminClient>>, u
   return !!data;
 }
 
+async function isDriver(db: Awaited<ReturnType<typeof getAdminClient>>, userId: string) {
+  const { data, error } = await db
+    .from("user_roles")
+    .select("user_id")
+    .eq("user_id", userId)
+    .eq("role", "livreur")
+    .maybeSingle();
+  if (error) throw new Error("Impossible de vérifier les droits livreur.");
+  return !!data;
+}
+
 async function getAccessibleRestaurants(
   db: Awaited<ReturnType<typeof getAdminClient>>,
   userId: string,
@@ -276,6 +287,87 @@ export const setRestaurantDishAvailability = createServerFn({ method: "POST" })
       .maybeSingle();
     if (error) throw new Error("Impossible de modifier la disponibilité du plat.");
     if (!updated) throw new Error("Plat introuvable pour ce restaurant.");
+    return { success: true };
+  });
+
+const driverOrderSelect =
+  "id, code, status, restaurant_name, customer_name, customer_phone, address, delivery_fee, total, created_at";
+
+export const getDriverDashboard = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const db = await getAdminClient();
+    if (!(await isDriver(db, context.userId))) {
+      throw new Error("Accès réservé aux comptes livreur.");
+    }
+
+    const [availableResult, assignedResult] = await Promise.all([
+      db
+        .from("orders")
+        .select(driverOrderSelect)
+        .eq("mode", "livraison")
+        .eq("status", "prete")
+        .is("delivery_person_id", null)
+        .order("created_at", { ascending: true })
+        .limit(50),
+      db
+        .from("orders")
+        .select(driverOrderSelect)
+        .eq("delivery_person_id", context.userId)
+        .in("status", ["en_livraison", "livree"])
+        .order("created_at", { ascending: false })
+        .limit(50),
+    ]);
+    if (availableResult.error) throw new Error("Impossible de charger les courses disponibles.");
+    if (assignedResult.error) throw new Error("Impossible de charger vos courses.");
+    return {
+      available: availableResult.data ?? [],
+      assigned: assignedResult.data ?? [],
+    };
+  });
+
+export const claimDeliveryOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(z.object({ orderId: z.string().uuid() }))
+  .handler(async ({ data, context }) => {
+    const db = await getAdminClient();
+    if (!(await isDriver(db, context.userId))) {
+      throw new Error("Accès réservé aux comptes livreur.");
+    }
+
+    const { data: claimed, error } = await db
+      .from("orders")
+      .update({ delivery_person_id: context.userId, status: "en_livraison" })
+      .eq("id", data.orderId)
+      .eq("mode", "livraison")
+      .eq("status", "prete")
+      .is("delivery_person_id", null)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error("Impossible de prendre cette course.");
+    if (!claimed) throw new Error("Cette course vient d’être prise ou n’est plus disponible.");
+    return { success: true };
+  });
+
+export const completeDeliveryOrder = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(z.object({ orderId: z.string().uuid() }))
+  .handler(async ({ data, context }) => {
+    const db = await getAdminClient();
+    if (!(await isDriver(db, context.userId))) {
+      throw new Error("Accès réservé aux comptes livreur.");
+    }
+
+    const { data: completed, error } = await db
+      .from("orders")
+      .update({ status: "livree" })
+      .eq("id", data.orderId)
+      .eq("delivery_person_id", context.userId)
+      .eq("status", "en_livraison")
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error("Impossible de confirmer cette livraison.");
+    if (!completed) throw new Error("Cette course ne vous est pas attribuée ou est déjà terminée.");
     return { success: true };
   });
 

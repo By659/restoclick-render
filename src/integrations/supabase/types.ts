@@ -172,6 +172,7 @@ export type Database = {
           created_at: string
           customer_name: string
           customer_phone: string
+          delivery_person_id: string | null
           delivery_fee: number
           id: string
           mode: string
@@ -190,6 +191,7 @@ export type Database = {
           created_at?: string
           customer_name: string
           customer_phone: string
+          delivery_person_id?: string | null
           delivery_fee: number
           id?: string
           mode: string
@@ -208,6 +210,7 @@ export type Database = {
           created_at?: string
           customer_name?: string
           customer_phone?: string
+          delivery_person_id?: string | null
           delivery_fee?: number
           id?: string
           mode?: string

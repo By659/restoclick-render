@@ -132,7 +132,7 @@ function Page() {
           Se déconnecter
         </button>
       </div>
-      {(roles.includes("admin") || restaurantMember) && (
+      {(roles.includes("admin") || roles.includes("livreur") || restaurantMember) && (
         <div className="mt-5 flex flex-wrap gap-4 text-sm font-semibold">
           {roles.includes("admin") && (
             <Link to="/admin" className="text-primary hover:underline">
@@ -142,6 +142,11 @@ function Page() {
           {restaurantMember && (
             <Link to="/restaurateur" className="text-primary hover:underline">
               Espace restaurateur
+            </Link>
+          )}
+          {roles.includes("livreur") && (
+            <Link to="/livreur-dashboard" className="text-primary hover:underline">
+              Espace livreur
             </Link>
           )}
         </div>

@@ -22,6 +22,7 @@ import { Route as PartenaireRouteImport } from './routes/partenaire'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedCommandesRouteImport } from './routes/_authenticated/commandes'
+import { Route as AuthenticatedLivreurDashboardRouteImport } from './routes/_authenticated/livreur-dashboard'
 import { Route as AuthenticatedProfilRouteImport } from './routes/_authenticated/profil'
 import { Route as AuthenticatedRestaurateurRouteImport } from './routes/_authenticated/restaurateur'
 import { Route as RestaurantsIndexRouteImport } from './routes/restaurants.index'
@@ -91,6 +92,12 @@ const AuthenticatedCommandesRoute = AuthenticatedCommandesRouteImport.update({
   path: '/commandes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedLivreurDashboardRoute =
+  AuthenticatedLivreurDashboardRouteImport.update({
+    id: '/livreur-dashboard',
+    path: '/livreur-dashboard',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedProfilRoute = AuthenticatedProfilRouteImport.update({
   id: '/profil',
   path: '/profil',
@@ -126,6 +133,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/commandes': typeof AuthenticatedCommandesRoute
+  '/livreur-dashboard': typeof AuthenticatedLivreurDashboardRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/restaurateur': typeof AuthenticatedRestaurateurRoute
   '/restaurants/$id': typeof RestaurantsIdRoute
@@ -144,6 +152,7 @@ export interface FileRoutesByTo {
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
   '/commandes': typeof AuthenticatedCommandesRoute
+  '/livreur-dashboard': typeof AuthenticatedLivreurDashboardRoute
   '/profil': typeof AuthenticatedProfilRoute
   '/restaurateur': typeof AuthenticatedRestaurateurRoute
   '/restaurants/$id': typeof RestaurantsIdRoute
@@ -164,6 +173,7 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
   '/_authenticated/commandes': typeof AuthenticatedCommandesRoute
+  '/_authenticated/livreur-dashboard': typeof AuthenticatedLivreurDashboardRoute
   '/_authenticated/profil': typeof AuthenticatedProfilRoute
   '/_authenticated/restaurateur': typeof AuthenticatedRestaurateurRoute
   '/restaurants/$id': typeof RestaurantsIdRoute
@@ -184,6 +194,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/commandes'
+    | '/livreur-dashboard'
     | '/profil'
     | '/restaurateur'
     | '/restaurants/$id'
@@ -202,6 +213,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/admin'
     | '/commandes'
+    | '/livreur-dashboard'
     | '/profil'
     | '/restaurateur'
     | '/restaurants/$id'
@@ -221,6 +233,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_authenticated/admin'
     | '/_authenticated/commandes'
+    | '/_authenticated/livreur-dashboard'
     | '/_authenticated/profil'
     | '/_authenticated/restaurateur'
     | '/restaurants/$id'
@@ -336,6 +349,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedCommandesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/livreur-dashboard': {
+      id: '/_authenticated/livreur-dashboard'
+      path: '/livreur-dashboard'
+      fullPath: '/livreur-dashboard'
+      preLoaderRoute: typeof AuthenticatedLivreurDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profil': {
       id: '/_authenticated/profil'
       path: '/profil'
@@ -370,6 +390,7 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
   AuthenticatedCommandesRoute: typeof AuthenticatedCommandesRoute
+  AuthenticatedLivreurDashboardRoute: typeof AuthenticatedLivreurDashboardRoute
   AuthenticatedProfilRoute: typeof AuthenticatedProfilRoute
   AuthenticatedRestaurateurRoute: typeof AuthenticatedRestaurateurRoute
 }
@@ -377,6 +398,7 @@ interface AuthenticatedRouteRouteChildren {
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
   AuthenticatedCommandesRoute: AuthenticatedCommandesRoute,
+  AuthenticatedLivreurDashboardRoute: AuthenticatedLivreurDashboardRoute,
   AuthenticatedProfilRoute: AuthenticatedProfilRoute,
   AuthenticatedRestaurateurRoute: AuthenticatedRestaurateurRoute,
 }

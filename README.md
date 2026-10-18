@@ -69,6 +69,16 @@ Pour appliquer leurs images au menu du projet Supabase déjà déployé, exécut
 [`drizzle/migrations/0004_thiakry_image.sql`](./drizzle/migrations/0004_thiakry_image.sql)
 une seule fois dans **Supabase > SQL Editor**.
 
+### Tableau de bord livreur
+
+Les livreurs ayant le rôle `livreur` peuvent ouvrir `/livreur-dashboard`, prendre
+une commande prête et confirmer sa livraison. Avant le déploiement sur une base
+existante, exécutez
+[`drizzle/migrations/0005_driver_delivery_assignment.sql`](./drizzle/migrations/0005_driver_delivery_assignment.sql)
+une seule fois dans **Supabase > SQL Editor**. Les courses disponibles sont
+actualisées toutes les cinq secondes ; l’attribution ne peut réussir que pour
+un seul livreur, même si plusieurs tentent de prendre la même commande.
+
 ## Vérification locale
 
 ```sh

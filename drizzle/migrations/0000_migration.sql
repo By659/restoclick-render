@@ -116,6 +116,7 @@ create table public.orders (
   code text not null unique default ('RC-' || upper(substr(md5(random()::text),1,6))),
   user_id uuid not null,
   restaurant_id text not null references public.restaurants(id),
+  delivery_person_id uuid references auth.users(id) on delete set null,
   restaurant_name text not null,
   status public.order_status not null default 'en_attente',
   mode text not null check (mode in ('livraison','emporter')),
@@ -131,6 +132,10 @@ create table public.orders (
 );
 create index on public.orders(user_id, created_at desc);
 create index on public.orders(restaurant_id, created_at desc);
+create index on public.orders(delivery_person_id, status, created_at desc)
+  where delivery_person_id is not null;
+create index on public.orders(created_at)
+  where mode = 'livraison' and status = 'prete' and delivery_person_id is null;
 grant select on public.orders to authenticated;
 grant all on public.orders to service_role;
 alter table public.orders enable row level security;
