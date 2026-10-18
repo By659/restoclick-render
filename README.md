@@ -64,10 +64,9 @@ rôle et, pour un restaurateur, associer son compte au restaurant.
 
 ### Photos du bissap et du thiakry
 
-La photo fournie est celle du jus de bissap et est incluse dans le build.
-Pour l’appliquer au menu du projet Supabase déjà déployé et restaurer l’image
-précédente du thiakry jusqu’à réception de sa photo dédiée, exécutez
-[`drizzle/migrations/0003_bissap_thiakry_images.sql`](./drizzle/migrations/0003_bissap_thiakry_images.sql)
+Les photos fournies pour le bissap et le thiakry sont incluses dans le build.
+Pour appliquer leurs images au menu du projet Supabase déjà déployé, exécutez
+[`drizzle/migrations/0004_thiakry_image.sql`](./drizzle/migrations/0004_thiakry_image.sql)
 une seule fois dans **Supabase > SQL Editor**.
 
 ## Vérification locale

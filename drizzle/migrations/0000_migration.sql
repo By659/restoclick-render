@@ -242,7 +242,7 @@ insert into public.dishes (id,restaurant_id,name,description,price,image_key,cat
 ('classic','casa-burger','Burger classique','Bœuf, cheddar, crudités, frites.',3500,'burger','Burgers',1),
 ('double','casa-burger','Double cheese','Double steak, double cheddar, frites.',5000,'burger','Burgers',2),
 ('shawarma','casa-burger','Sandwich shawarma','Poulet mariné, crudités, sauce blanche.',2000,'burger','Sandwichs',3),
-('thiakry','casa-burger','Thiakry','Dessert de mil au lait caillé.',1000,'burger','Desserts',4),
+('thiakry','casa-burger','Thiakry','Dessert de mil au lait caillé.',1000,'thiakry','Desserts',4),
 ('kaldou','le-kassa','Kaldou','Poisson au citron, spécialité de Casamance.',3000,'yassa','Plats',1);
 
 insert into public.dish_options (dish_id,label,price)
