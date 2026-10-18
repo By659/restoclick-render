@@ -118,6 +118,7 @@ describe("API contracts", () => {
     await submitApplication({
       kind: "livreur",
       name: "Moussa Fall",
+      email: "Moussa@Example.com",
       phone: "77 123 45 67",
       detail: "Moto",
       userId: "user-id",
@@ -127,6 +128,7 @@ describe("API contracts", () => {
     expect(insertMock).toHaveBeenCalledWith({
       kind: "livreur",
       name: "Moussa Fall",
+      email: "moussa@example.com",
       phone: "77 123 45 67",
       detail: "Moto",
       user_id: "user-id",

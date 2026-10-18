@@ -76,7 +76,7 @@ export const myOrdersQuery = (userId: string) =>
     },
   });
 
-export async function submitApplication(a: { kind: "partenaire" | "livreur"; name: string; phone: string; detail: string; userId?: string | undefined }) {
-  const { error } = await supabase.from("applications").insert({ kind: a.kind, name: a.name, phone: a.phone, detail: a.detail, user_id: a.userId ?? null });
+export async function submitApplication(a: { kind: "partenaire" | "livreur"; name: string; email: string; phone: string; detail: string; userId?: string | undefined }) {
+  const { error } = await supabase.from("applications").insert({ kind: a.kind, name: a.name, email: a.email.trim().toLowerCase(), phone: a.phone, detail: a.detail, user_id: a.userId ?? null });
   if (error) throw new Error("Envoi impossible, réessayez.");
 }

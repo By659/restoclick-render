@@ -48,6 +48,20 @@ politiques RLS et doit rester une variable secrète du serveur Railway.
 Le déploiement ne lance aucune migration Supabase. Vérifiez le projet Supabase
 ciblé avant d’utiliser les fonctions qui écrivent dans la base.
 
+### E-mail des candidatures
+
+Avant de déployer la collecte de l’e-mail des candidats, exécutez
+[`drizzle/migrations/0001_application_email.sql`](./drizzle/migrations/0001_application_email.sql)
+une seule fois dans **Supabase > SQL Editor** sur le projet utilisé par Railway.
+Cette migration ajoute une colonne facultative pour préserver les anciennes
+candidatures ; les nouvelles candidatures doivent fournir une adresse e-mail.
+
+Après acceptation, l’administration peut ouvrir un e-mail prérempli ou appeler
+le candidat. L’e-mail n’est pas envoyé automatiquement : aucun fournisseur
+d’envoi d’e-mails transactionnels n’est configuré. Le message indique au candidat
+de s’inscrire avec l’adresse fournie. L’administration doit ensuite attribuer le
+rôle et, pour un restaurateur, associer son compte au restaurant.
+
 ## Vérification locale
 
 ```sh

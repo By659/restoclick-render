@@ -289,7 +289,7 @@ export const getAdminBackoffice = createServerFn({ method: "GET" })
     const [applicationsResult, restaurantsResult, ordersResult, rolesResult] = await Promise.all([
       db
         .from("applications")
-        .select("id, kind, user_id, name, phone, detail, status, created_at")
+        .select("id, kind, user_id, name, email, phone, detail, status, created_at")
         .order("created_at", { ascending: false })
         .limit(100),
       db.from("restaurants").select("id, name").order("name"),

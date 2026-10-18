@@ -11,6 +11,32 @@ import {
 } from "@/lib/backoffice.functions";
 import { formatFCFA } from "@/lib/data";
 
+function acceptedApplicationMailto(application: {
+  name: string;
+  email: string | null;
+  kind: string;
+}) {
+  if (!application.email) return "mailto:";
+  const email = application.email;
+  const kind = application.kind === "partenaire" ? "comme restaurant partenaire" : "comme livreur";
+  const body = [
+    `Bonjour ${application.name},`,
+    "",
+    `Nous avons le plaisir de vous informer que votre candidature ${kind} chez RestoClik a été acceptée.`,
+    "",
+    `Vous pouvez créer votre compte sur ${window.location.origin}/auth?mode=inscription en utilisant exactement cette adresse e-mail : ${email}.`,
+    "",
+    "Nous finaliserons l’activation de votre accès après la création du compte.",
+    "",
+    "À bientôt sur RestoClik.",
+  ].join("\r\n");
+  const query = new URLSearchParams({
+    subject: "Votre candidature RestoClik est acceptée",
+    body,
+  });
+  return `mailto:${email}?${query.toString()}`;
+}
+
 export const Route = createFileRoute("/_authenticated/admin")({
   head: () => ({ meta: [{ title: "Administration — RestoClik" }] }),
   component: AdminBackoffice,
@@ -117,11 +143,13 @@ function AdminBackoffice() {
             <table className="w-full min-w-[720px] text-left text-sm">
               <thead className="border-b bg-secondary/60">
                 <tr>
-                  {["Type", "Nom", "Téléphone", "Détails", "Statut", "Actions"].map((title) => (
-                    <th key={title} className="px-4 py-3 font-semibold">
-                      {title}
-                    </th>
-                  ))}
+                  {["Type", "Nom", "E-mail", "Téléphone", "Détails", "Statut", "Actions"].map(
+                    (title) => (
+                      <th key={title} className="px-4 py-3 font-semibold">
+                        {title}
+                      </th>
+                    ),
+                  )}
                 </tr>
               </thead>
               <tbody className="divide-y">
@@ -131,6 +159,15 @@ function AdminBackoffice() {
                       {application.kind === "partenaire" ? "Restaurant" : "Livreur"}
                     </td>
                     <td className="px-4 py-3">{application.name}</td>
+                    <td className="px-4 py-3">
+                      {application.email ? (
+                        <a className="text-primary underline" href={`mailto:${application.email}`}>
+                          {application.email}
+                        </a>
+                      ) : (
+                        "Non renseigné"
+                      )}
+                    </td>
                     <td className="px-4 py-3">{application.phone}</td>
                     <td className="px-4 py-3">{application.detail}</td>
                     <td className="px-4 py-3">{application.status}</td>
@@ -159,6 +196,27 @@ function AdminBackoffice() {
                           >
                             Refuser
                           </button>
+                        </div>
+                      ) : application.status === "acceptee" ? (
+                        <div className="flex flex-wrap gap-2">
+                          {application.email && (
+                            <a
+                              className="rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-primary-deep"
+                              href={`mailto:${application.email}`}
+                              onClick={(event) => {
+                                event.preventDefault();
+                                window.location.href = acceptedApplicationMailto(application);
+                              }}
+                            >
+                              Préparer l’e-mail
+                            </a>
+                          )}
+                          <a
+                            className="rounded-full border px-3 py-1.5 text-xs font-semibold"
+                            href={`tel:${application.phone.replace(/[^\d+]/g, "")}`}
+                          >
+                            Appeler
+                          </a>
                         </div>
                       ) : (
                         "—"
