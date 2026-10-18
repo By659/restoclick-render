@@ -4,7 +4,8 @@ import burger from "@/assets/burger.jpg";
 import yassa from "@/assets/yassa.jpg";
 
 const IMAGES: Record<string, string> = { hero, dibi, burger, yassa };
-export const imageFor = (key: string) => IMAGES[key] ?? hero;
+export const imageFor = (key: string) =>
+  key.startsWith("https://") || key.startsWith("http://") ? key : IMAGES[key] ?? hero;
 
 export type DishOption = { label: string; price: number };
 export type Dish = { id: string; name: string; description: string; price: number; image_key: string; category: string; is_available: boolean; options: DishOption[] };

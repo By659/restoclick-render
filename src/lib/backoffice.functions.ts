@@ -154,7 +154,16 @@ const dishSchema = z.object({
   description: z.string().trim().max(500),
   category: z.string().trim().min(2).max(60),
   price: z.number().int().min(0).max(10_000_000),
-  image_key: z.enum(["hero", "yassa", "dibi", "burger"]),
+  image: z
+    .object({
+      contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+      base64: z
+        .string()
+        .min(1)
+        .max(4_194_304)
+        .regex(/^[A-Za-z0-9+/]+={0,2}$/),
+    })
+    .optional(),
 });
 
 export const saveRestaurantDish = createServerFn({ method: "POST" })
@@ -167,12 +176,52 @@ export const saveRestaurantDish = createServerFn({ method: "POST" })
       throw new Error("Accès refusé à ce restaurant.");
     }
 
+    let imageUrl: string | undefined;
+    if (data.image) {
+      const imageBytes = Buffer.from(data.image.base64, "base64");
+      if (!imageBytes.length || imageBytes.length > 3 * 1024 * 1024) {
+        throw new Error("L’image doit peser 3 Mo maximum.");
+      }
+
+      const bucketName = "dish-images";
+      const { data: bucket, error: bucketError } = await db.storage.getBucket(bucketName);
+      if (bucketError) {
+        const { error: createBucketError } = await db.storage.createBucket(bucketName, {
+          public: true,
+          fileSizeLimit: 3 * 1024 * 1024,
+          allowedMimeTypes: ["image/jpeg", "image/png", "image/webp"],
+        });
+        if (createBucketError) {
+          throw new Error(
+            `Impossible de préparer le stockage des images : ${createBucketError.message}`,
+          );
+        }
+      } else if (!bucket.public) {
+        throw new Error(
+          "Le stockage des images doit être public pour afficher les photos du menu.",
+        );
+      }
+
+      const extension = { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[
+        data.image.contentType
+      ];
+      const imagePath = `${data.restaurantId}/${crypto.randomUUID()}.${extension}`;
+      const { error: uploadError } = await db.storage
+        .from(bucketName)
+        .upload(imagePath, imageBytes, {
+          contentType: data.image.contentType,
+          upsert: false,
+        });
+      if (uploadError) throw new Error(`Impossible d’envoyer l’image : ${uploadError.message}`);
+      imageUrl = db.storage.from(bucketName).getPublicUrl(imagePath).data.publicUrl;
+    }
+
     const values = {
       name: data.name,
       description: data.description,
       category: data.category,
       price: data.price,
-      image_key: data.image_key,
+      ...(imageUrl ? { image_key: imageUrl } : {}),
     };
 
     if (data.id) {
@@ -193,6 +242,7 @@ export const saveRestaurantDish = createServerFn({ method: "POST" })
       .insert({
         id: `dish-${crypto.randomUUID()}`,
         restaurant_id: data.restaurantId,
+        image_key: imageUrl ?? "hero",
         ...values,
       })
       .select("id")

@@ -3,6 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { formatFCFA, imageFor } from "@/lib/data";
 import {
   advanceRestaurantOrder,
   getRestaurantBackoffice,
@@ -10,7 +11,6 @@ import {
   setRestaurantDishAvailability,
 } from "@/lib/backoffice.functions";
 import { nextRestaurantOrderStatus, ORDER_STATUS_LABEL } from "@/lib/backoffice-domain";
-import { formatFCFA } from "@/lib/data";
 
 export const Route = createFileRoute("/_authenticated/restaurateur")({
   head: () => ({ meta: [{ title: "Espace restaurateur — RestoClik" }] }),
@@ -25,8 +25,10 @@ function RestaurantBackoffice() {
     description: "",
     category: "Plats",
     price: "",
-    image_key: "hero" as "hero" | "yassa" | "dibi" | "burger",
+    image_key: "hero",
   });
+  const [dishImage, setDishImage] = useState<File | null>(null);
+  const [dishImagePreview, setDishImagePreview] = useState("");
   const queryClient = useQueryClient();
   const getDashboard = useServerFn(getRestaurantBackoffice);
   const advanceOrder = useServerFn(advanceRestaurantOrder);
@@ -73,10 +75,21 @@ function RestaurantBackoffice() {
         price: "",
         image_key: "hero",
       });
+      setDishImage(null);
       refresh();
     },
     onError: (error) => toast.error(error.message),
   });
+
+  useEffect(() => {
+    if (!dishImage) {
+      setDishImagePreview("");
+      return;
+    }
+    const preview = URL.createObjectURL(dishImage);
+    setDishImagePreview(preview);
+    return () => URL.revokeObjectURL(preview);
+  }, [dishImage]);
 
   if (dashboard.isLoading)
     return <p className="mx-auto max-w-6xl px-4 py-12">Chargement de votre espace…</p>;
@@ -92,15 +105,54 @@ function RestaurantBackoffice() {
   if (!dashboard.data) return null;
 
   const { restaurants, restaurant, orders, orderItems, dishes } = dashboard.data;
-  const editDish = (dish: (typeof dishes)[number]) =>
+  const editDish = (dish: (typeof dishes)[number]) => {
     setDishForm({
       id: dish.id,
       name: dish.name,
       description: dish.description,
       category: dish.category,
       price: String(dish.price),
-      image_key: dish.image_key as typeof dishForm.image_key,
+      image_key: dish.image_key,
     });
+    setDishImage(null);
+  };
+
+  const submitDish = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    let image:
+      { contentType: "image/jpeg" | "image/png" | "image/webp"; base64: string } | undefined;
+    if (dishImage) {
+      try {
+        if (!["image/jpeg", "image/png", "image/webp"].includes(dishImage.type)) {
+          toast.error("Choisissez une image JPEG, PNG ou WebP.");
+          return;
+        }
+        const bytes = new Uint8Array(await dishImage.arrayBuffer());
+        let binary = "";
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        }
+        image = {
+          contentType: dishImage.type as "image/jpeg" | "image/png" | "image/webp",
+          base64: btoa(binary),
+        };
+      } catch {
+        toast.error("Impossible de lire l’image sélectionnée.");
+        return;
+      }
+    }
+    dishMutation.mutate({
+      data: {
+        restaurantId: restaurant.id,
+        id: dishForm.id || undefined,
+        name: dishForm.name,
+        description: dishForm.description,
+        category: dishForm.category,
+        price: Number(dishForm.price),
+        image,
+      },
+    });
+  };
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-10">
@@ -214,20 +266,7 @@ function RestaurantBackoffice() {
         <h2 className="text-2xl font-bold">Gestion du menu</h2>
         <form
           className="mt-4 grid gap-3 rounded-2xl border bg-card p-5 sm:grid-cols-2 lg:grid-cols-3"
-          onSubmit={(event) => {
-            event.preventDefault();
-            dishMutation.mutate({
-              data: {
-                restaurantId: restaurant.id,
-                id: dishForm.id || undefined,
-                name: dishForm.name,
-                description: dishForm.description,
-                category: dishForm.category,
-                price: Number(dishForm.price),
-                image_key: dishForm.image_key,
-              },
-            });
-          }}
+          onSubmit={submitDish}
         >
           <h3 className="text-lg font-semibold sm:col-span-2 lg:col-span-3">
             {dishForm.id ? "Modifier un plat" : "Ajouter un plat"}
@@ -271,19 +310,39 @@ function RestaurantBackoffice() {
             value={dishForm.description}
             onChange={(e) => setDishForm({ ...dishForm, description: e.target.value })}
           />
-          <select
-            className="input"
-            aria-label="Image"
-            value={dishForm.image_key}
-            onChange={(e) =>
-              setDishForm({ ...dishForm, image_key: e.target.value as typeof dishForm.image_key })
-            }
-          >
-            <option value="hero">Image principale</option>
-            <option value="yassa">Yassa</option>
-            <option value="dibi">Dibi</option>
-            <option value="burger">Burger</option>
-          </select>
+          <label className="block text-sm sm:col-span-2 lg:col-span-3">
+            <span className="mb-1 block font-medium">
+              Photo du plat ou de la boisson (JPEG, PNG ou WebP, 3 Mo maximum)
+            </span>
+            <input
+              key={dishImage ? `${dishImage.name}-${dishImage.lastModified}` : "empty"}
+              className="input"
+              aria-label="Photo du plat ou de la boisson"
+              type="file"
+              accept="image/jpeg,image/png,image/webp"
+              onChange={(event) => {
+                const file = event.target.files?.[0] ?? null;
+                if (file && file.size > 3 * 1024 * 1024) {
+                  toast.error("L’image doit peser 3 Mo maximum.");
+                  event.target.value = "";
+                  setDishImage(null);
+                  return;
+                }
+                if (file && !["image/jpeg", "image/png", "image/webp"].includes(file.type)) {
+                  toast.error("Choisissez une image JPEG, PNG ou WebP.");
+                  event.target.value = "";
+                  setDishImage(null);
+                  return;
+                }
+                setDishImage(file);
+              }}
+            />
+          </label>
+          <img
+            className="h-40 w-40 rounded-xl border object-cover"
+            src={dishImagePreview || imageFor(dishForm.image_key)}
+            alt="Aperçu de la photo du menu"
+          />
           <button
             disabled={dishMutation.isPending}
             className="rounded-full bg-primary-deep px-5 py-2.5 font-semibold text-primary-foreground disabled:opacity-60"
@@ -297,7 +356,7 @@ function RestaurantBackoffice() {
           {dishForm.id && (
             <button
               type="button"
-              onClick={() =>
+              onClick={() => {
                 setDishForm({
                   id: "",
                   name: "",
@@ -305,8 +364,9 @@ function RestaurantBackoffice() {
                   category: "Plats",
                   price: "",
                   image_key: "hero",
-                })
-              }
+                });
+                setDishImage(null);
+              }}
               className="rounded-full border px-5 py-2.5 font-semibold"
             >
               Annuler
@@ -316,16 +376,23 @@ function RestaurantBackoffice() {
         <ul className="mt-4 divide-y rounded-2xl border bg-card">
           {dishes.map((dish) => (
             <li key={dish.id} className="flex flex-wrap items-center justify-between gap-3 p-4">
-              <div>
-                <p className="font-semibold">
-                  {dish.name}{" "}
-                  <span className="font-normal text-muted-foreground">
-                    · {formatFCFA(dish.price)}
-                  </span>
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  {dish.category} · {dish.is_available ? "Disponible" : "Indisponible"}
-                </p>
+              <div className="flex items-center gap-3">
+                <img
+                  className="h-14 w-14 rounded-lg border object-cover"
+                  src={imageFor(dish.image_key)}
+                  alt=""
+                />
+                <div>
+                  <p className="font-semibold">
+                    {dish.name}{" "}
+                    <span className="font-normal text-muted-foreground">
+                      · {formatFCFA(dish.price)}
+                    </span>
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    {dish.category} · {dish.is_available ? "Disponible" : "Indisponible"}
+                  </p>
+                </div>
               </div>
               <div className="flex gap-2">
                 <button
