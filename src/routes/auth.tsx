@@ -3,7 +3,6 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { useAuth } from "@/lib/auth";
 import { PHONE_RE } from "@/lib/data";
 
@@ -61,12 +60,6 @@ function AuthPage() {
     } finally { setBusy(false); }
   };
 
-  const google = async () => {
-    if (redirect) sessionStorage.setItem("rc-redirect", safePath(redirect));
-    const r = await lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin });
-    if (r.error) toast.error("Connexion Google impossible.");
-  };
-
   const title = { connexion: "Connexion", inscription: "Créer un compte", oubli: "Mot de passe oublié" }[mode];
 
   return (
@@ -76,12 +69,6 @@ function AuthPage() {
         <p className="mt-6 rounded-2xl bg-secondary p-5 font-medium text-primary-deep">{sent}</p>
       ) : (
         <form onSubmit={submit} className="mt-6 space-y-4 rounded-2xl border bg-card p-6 shadow-[var(--shadow-soft)]">
-          {mode !== "oubli" && (
-            <>
-              <button type="button" onClick={google} className="w-full rounded-full border py-3 font-semibold hover:bg-muted">Continuer avec Google</button>
-              <p className="text-center text-xs text-muted-foreground">ou avec votre email</p>
-            </>
-          )}
           {mode === "inscription" && (
             <>
               <Field label="Nom complet"><input required value={f.name} onChange={(e) => setF({ ...f, name: e.target.value })} className="input" autoComplete="name" /></Field>
