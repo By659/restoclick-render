@@ -279,6 +279,33 @@ export const setRestaurantDishAvailability = createServerFn({ method: "POST" })
     return { success: true };
   });
 
+export const deleteRestaurantDish = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .validator(
+    z.object({
+      restaurantId: restaurantIdSchema,
+      dishId: z.string().trim().min(1).max(120),
+    }),
+  )
+  .handler(async ({ data, context }) => {
+    const db = await getAdminClient();
+    const { restaurants } = await getAccessibleRestaurants(db, context.userId);
+    if (!restaurants.some((restaurant) => restaurant.id === data.restaurantId)) {
+      throw new Error("Accès refusé à ce restaurant.");
+    }
+
+    const { data: deleted, error } = await db
+      .from("dishes")
+      .delete()
+      .eq("id", data.dishId)
+      .eq("restaurant_id", data.restaurantId)
+      .select("id")
+      .maybeSingle();
+    if (error) throw new Error("Impossible de supprimer ce plat.");
+    if (!deleted) throw new Error("Plat introuvable pour ce restaurant.");
+    return { success: true };
+  });
+
 export const getAdminBackoffice = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {

@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { formatFCFA, imageFor } from "@/lib/data";
 import {
   advanceRestaurantOrder,
+  deleteRestaurantDish,
   getRestaurantBackoffice,
   saveRestaurantDish,
   setRestaurantDishAvailability,
@@ -32,6 +33,7 @@ function RestaurantBackoffice() {
   const queryClient = useQueryClient();
   const getDashboard = useServerFn(getRestaurantBackoffice);
   const advanceOrder = useServerFn(advanceRestaurantOrder);
+  const deleteDish = useServerFn(deleteRestaurantDish);
   const saveDish = useServerFn(saveRestaurantDish);
   const setAvailability = useServerFn(setRestaurantDishAvailability);
   const dashboard = useQuery({
@@ -59,6 +61,14 @@ function RestaurantBackoffice() {
     mutationFn: setAvailability,
     onSuccess: () => {
       toast.success("Disponibilité du plat mise à jour.");
+      refresh();
+    },
+    onError: (error) => toast.error(error.message),
+  });
+  const deleteDishMutation = useMutation({
+    mutationFn: deleteDish,
+    onSuccess: () => {
+      toast.success("Plat supprimé définitivement.");
       refresh();
     },
     onError: (error) => toast.error(error.message),
@@ -400,6 +410,23 @@ function RestaurantBackoffice() {
                   className="rounded-full border px-4 py-2 text-sm font-semibold"
                 >
                   Modifier
+                </button>
+                <button
+                  disabled={deleteDishMutation.isPending}
+                  onClick={() => {
+                    if (
+                      window.confirm(
+                        `Supprimer définitivement « ${dish.name} » du menu ? Cette action est irréversible. Les commandes passées conserveront leur historique.`,
+                      )
+                    ) {
+                      deleteDishMutation.mutate({
+                        data: { restaurantId: restaurant.id, dishId: dish.id },
+                      });
+                    }
+                  }}
+                  className="rounded-full border border-destructive px-4 py-2 text-sm font-semibold text-destructive disabled:opacity-60"
+                >
+                  Supprimer
                 </button>
                 <button
                   disabled={availabilityMutation.isPending}
