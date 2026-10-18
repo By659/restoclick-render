@@ -10,12 +10,13 @@ describe("restaurant order workflow", () => {
   });
 
   describe("menu image URLs", () => {
-    it("uses uploaded image URLs directly and keeps built-in image keys", () => {
+    it("uses uploaded image URLs directly and resolves built-in image keys", () => {
       const uploadedImage =
         "https://example.supabase.co/storage/v1/object/public/dish-images/dish.png";
 
       expect(imageFor(uploadedImage)).toBe(uploadedImage);
       expect(imageFor("unknown")).toBe(imageFor("hero"));
+      expect(imageFor("bissap")).not.toBe(imageFor("yassa"));
     });
   });
 

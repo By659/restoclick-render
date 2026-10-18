@@ -235,7 +235,7 @@ insert into public.dishes (id,restaurant_id,name,description,price,image_key,cat
 ('thieb','chez-awa','Thiéboudienne','Riz rouge, poisson frais et légumes du marché.',3000,'hero','Plats',1),
 ('yassa-awa','chez-awa','Yassa poulet','Poulet mariné citron-oignons, riz blanc.',2500,'yassa','Plats',2),
 ('mafe-awa','chez-awa','Mafé bœuf','Sauce arachide onctueuse, riz blanc.',2500,'hero','Plats',3),
-('bissap','chez-awa','Jus de bissap','Bouteille 50 cl, fait maison.',500,'yassa','Boissons',4),
+('bissap','chez-awa','Jus de bissap','Bouteille 50 cl, fait maison.',500,'bissap','Boissons',4),
 ('dibi-mouton','dibiterie-teranga','Dibi mouton (500 g)','Agneau grillé au feu de bois, oignons, moutarde.',4000,'dibi','Grillades',1),
 ('dibi-poulet','dibiterie-teranga','Poulet braisé','Demi-poulet braisé, frites ou attiéké.',3500,'dibi','Grillades',2),
 ('poisson-braise','dibiterie-teranga','Poisson braisé','Capitaine grillé, attiéké et sauce oignon.',4500,'dibi','Grillades',3),

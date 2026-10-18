@@ -62,6 +62,14 @@ d’envoi d’e-mails transactionnels n’est configuré. Le message indique au 
 de s’inscrire avec l’adresse fournie. L’administration doit ensuite attribuer le
 rôle et, pour un restaurateur, associer son compte au restaurant.
 
+### Photo du jus de bissap
+
+Pour appliquer la nouvelle photo au menu du projet Supabase déjà déployé,
+exécutez [`drizzle/migrations/0002_bissap_image.sql`](./drizzle/migrations/0002_bissap_image.sql)
+une seule fois dans **Supabase > SQL Editor**. Le nouveau fichier image est
+également inclus dans le build ; aucune migration n’est nécessaire pour une
+installation neuve créée à partir de `0000_migration.sql`.
+
 ## Vérification locale
 
 ```sh
