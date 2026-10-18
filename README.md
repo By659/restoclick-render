@@ -62,14 +62,13 @@ d’envoi d’e-mails transactionnels n’est configuré. Le message indique au 
 de s’inscrire avec l’adresse fournie. L’administration doit ensuite attribuer le
 rôle et, pour un restaurateur, associer son compte au restaurant.
 
-### Photo du thiakry
+### Photos du bissap et du thiakry
 
-Pour appliquer la nouvelle photo à l’article Thiakry du menu sur le projet
-Supabase déjà déployé, exécutez
-[`drizzle/migrations/0002_thiakry_image.sql`](./drizzle/migrations/0002_thiakry_image.sql)
-une seule fois dans **Supabase > SQL Editor**. Le fichier image est inclus dans
-le build ; une nouvelle installation créée à partir de `0000_migration.sql`
-utilisera directement cette photo pour le thiakry.
+La photo fournie est celle du jus de bissap et est incluse dans le build.
+Pour l’appliquer au menu du projet Supabase déjà déployé et restaurer l’image
+précédente du thiakry jusqu’à réception de sa photo dédiée, exécutez
+[`drizzle/migrations/0003_bissap_thiakry_images.sql`](./drizzle/migrations/0003_bissap_thiakry_images.sql)
+une seule fois dans **Supabase > SQL Editor**.
 
 ## Vérification locale
 

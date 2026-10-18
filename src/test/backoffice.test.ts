@@ -16,7 +16,8 @@ describe("restaurant order workflow", () => {
 
       expect(imageFor(uploadedImage)).toBe(uploadedImage);
       expect(imageFor("unknown")).toBe(imageFor("hero"));
-      expect(imageFor("thiakry")).not.toBe(imageFor("yassa"));
+      expect(imageFor("bissap")).not.toBe(imageFor("yassa"));
+      expect(imageFor("thiakry")).toBe(imageFor("burger"));
     });
   });
 

@@ -2,9 +2,9 @@ import hero from "@/assets/hero.jpg";
 import dibi from "@/assets/dibi.jpg";
 import burger from "@/assets/burger.jpg";
 import yassa from "@/assets/yassa.jpg";
-import thiakry from "@/assets/thiakry.jpg";
+import bissap from "@/assets/bissap.jpg";
 
-const IMAGES: Record<string, string> = { hero, dibi, burger, yassa, thiakry };
+const IMAGES: Record<string, string> = { hero, dibi, burger, yassa, bissap, thiakry: burger };
 export const imageFor = (key: string) =>
   key.startsWith("https://") || key.startsWith("http://") ? key : IMAGES[key] ?? hero;
 
